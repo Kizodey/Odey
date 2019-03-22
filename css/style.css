@@ -1,0 +1,30 @@
+body {
+    background-color:  #1A535C;
+    font-family: 'Source Sans Pro', sans-serif;
+    height: 100%;
+}
+
+h1 {
+  font-size: 4em;
+  color: white;
+}
+
+#container {
+    max-width: 50%; 
+    margin-left: auto;
+    margin-right: auto;
+}
+
+span {
+  border-right: .05em solid;
+  animation: caret 1s steps(1) infinite;
+}
+
+@keyframes caret {
+  50% {
+    border-color: transparent;
+  }
+}
+
+
+}
