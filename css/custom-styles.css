@@ -1,0 +1,105 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: raleway,sans-serif;
+}
+
+.container {
+    margin-right:auto;
+    margin-left: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.home-heading-position {
+    position: static;
+    padding-top: .8em;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 550%;
+    font-weight: 700;
+    line-height: 1em;
+}
+
+.icons {
+    padding: 0;
+    margin: 1.5em auto 2em;
+    text-align: center;
+}
+#linkedin {
+    margin: 0 .5em 0 0;
+}
+
+.social-media {
+    -webkit-transition-duration: .3s;
+    -moz-transition-duration: .3s;
+    -ms-transition-duration: .3s;
+    -o-transition-duration: .3s;
+    transition-duration: .3s;
+    color: #000;
+}
+#github {
+    margin: 0 .5em;
+}
+
+#medium {
+    margin: 0 .5em;
+}
+
+#twitter {
+    margin: 0 0 0 .5em;
+}
+
+a {
+    text-decoration: none !important;
+}
+.medium-heading {
+    width: 700px;
+    max-width: 100%;
+    text-align: center;
+    border-bottom: 1px solid #000;
+    line-height: .1em;
+    margin: 2em auto 0;
+    font-size: 200%;
+    text-decoration: none !important;
+}
+
+.medium-heading span {
+    background: #fff;
+    padding: 0 10px;
+    text-decoration: none !important;
+}
+
+.medium-story {
+    width: 700px;
+    max-width: 100%;
+    margin: auto;
+    padding-top: 2em;
+    padding-bottom: 2em;
+    overflow: auto;
+    border-bottom: 1px solid #000;
+    text-decoration: none !important;
+}
+.medium-image {
+    float: left;
+}
+
+.medium-title {
+    float: left;
+    margin-left: 1em;
+    width: calc(100% - 9em);
+    font-size: 1.4em;
+    font-weight: 700;
+    text-decoration: none !important;
+}
+
+.medium-caption {
+    float: left;
+    margin-top: .5em;
+    margin-left: 1.4em;
+    width: calc(100% - 12.6em);
+    text-decoration: none !important;
+}
+
+
