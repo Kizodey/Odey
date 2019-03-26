@@ -117,11 +117,18 @@ a {
 }
 .medium-image {
     float: left;
+    
+    
 }
 
+.medium-image:hover {
+    transform: scale(0.95);
+    
+}
+
+
 .medium-title {
-    float: left;
-    margin-left: 1em;
+    float: right;
     width: calc(100% - 9em);
     font-size: 1.4em;
     font-weight: 700;
@@ -129,10 +136,10 @@ a {
 }
 
 .medium-caption {
-    float: left;
+    float: right;
     margin-top: .5em;
     margin-left: 1.4em;
-    width: calc(100% - 12.6em);
+    width: calc(100% - 15.6em);
     text-decoration: none !important;
 }
 
