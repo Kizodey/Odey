@@ -3,11 +3,11 @@ import zipfile
 import shutil
 import uuid
 import json
+import subprocess
+import tempfile
 from pathlib import Path
-from flask import Flask, request, jsonify, render_template, session
-from werkzeug.utils import secure_filename
+from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
-import anthropic
 import pdfplumber
 import docx
 import openpyxl
@@ -21,12 +21,23 @@ UPLOAD_FOLDER = Path("uploads")
 EXTRACTED_FOLDER = Path("extracted")
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB
 ALLOWED_EXTENSIONS = {"zip"}
+CLAUDE_CLI = os.environ.get("CLAUDE_CLI", "claude")
 
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-
 DOCUMENT_EXTENSIONS = {".pdf", ".docx", ".doc", ".xlsx", ".xls", ".txt", ".csv", ".rtf"}
+
+SYSTEM_PROMPT = """You are a specialist in elevator and lift engineering specifications.
+Your role is to analyse technical documents and extract relevant information about lift specifications.
+
+When answering queries, structure your response as:
+1. **Direct Answer** – concise summary of findings
+2. **Specification Details** – specific values, standards, codes, or requirements found (use a table or list)
+3. **Source References** – which document(s) contained the information
+4. **Additional Notes** – related specifications or compliance considerations the user should be aware of
+
+If the information is not found in the documents, clearly state that and suggest what to look for.
+Always cite the specific document filename when referencing data."""
 
 
 def allowed_file(filename: str) -> bool:
@@ -105,6 +116,49 @@ def build_document_context(docs: list[dict]) -> str:
     return "\n".join(parts)
 
 
+def query_claude_api(prompt: str) -> str:
+    """Use the Anthropic Python SDK if ANTHROPIC_API_KEY is set."""
+    import anthropic
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    client = anthropic.Anthropic(api_key=api_key)
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=2048,
+        system=SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return message.content[0].text
+
+
+def query_claude_cli(prompt: str) -> str:
+    """Use the `claude` CLI (already authenticated via Claude Code) as fallback."""
+    full_prompt = f"{SYSTEM_PROMPT}\n\n{prompt}"
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+        f.write(full_prompt)
+        tmp = f.name
+    try:
+        result = subprocess.run(
+            [CLAUDE_CLI, "--print", "-p", full_prompt],
+            capture_output=True,
+            text=True,
+            timeout=120,
+            cwd="/tmp",
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+        raise RuntimeError(result.stderr or "CLI returned no output")
+    finally:
+        os.unlink(tmp)
+
+
+def ask_claude(user_message: str) -> str:
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    # Only use SDK if key looks like a real API key
+    if api_key and api_key.startswith("sk-ant-api"):
+        return query_claude_api(user_message)
+    return query_claude_cli(user_message)
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -146,16 +200,14 @@ def upload():
         upload_path.unlink(missing_ok=True)
         return jsonify({"error": "No readable documents found in ZIP"}), 400
 
-    # Persist doc list for this session
     manifest_path = EXTRACTED_FOLDER / f"{session_id}_manifest.json"
     with open(manifest_path, "w") as f:
         json.dump(docs, f)
 
-    file_list = [d["filename"] for d in docs]
     return jsonify({
         "session_id": session_id,
         "document_count": len(docs),
-        "files": file_list,
+        "files": [d["filename"] for d in docs],
     })
 
 
@@ -176,20 +228,7 @@ def search():
         docs = json.load(f)
 
     context = build_document_context(docs)
-
-    system_prompt = """You are a specialist in elevator and lift engineering specifications.
-Your role is to analyse technical documents and extract relevant information about lift specifications.
-
-When answering queries, structure your response as:
-1. **Direct Answer** – concise summary of findings
-2. **Specification Details** – specific values, standards, codes, or requirements found (use a table or list)
-3. **Source References** – which document(s) contained the information
-4. **Additional Notes** – related specifications or compliance considerations the user should be aware of
-
-If the information is not found in the documents, clearly state that and suggest what to look for.
-Always cite the specific document filename when referencing data."""
-
-    user_message = f"""The following documents are lift/elevator specification documents that have been uploaded:
+    user_message = f"""The following documents are lift/elevator specification documents:
 
 {context}
 
@@ -200,16 +239,10 @@ User query: {query}
 Please search through these documents and provide a detailed, structured response specific to lift/elevator specifications."""
 
     try:
-        message = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=2048,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_message}],
-        )
-        answer = message.content[0].text
+        answer = ask_claude(user_message)
         return jsonify({"answer": answer, "document_count": len(docs)})
-    except anthropic.APIError as e:
-        return jsonify({"error": f"AI service error: {e}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"AI error: {e}"}), 500
 
 
 @app.route("/session/<session_id>/files", methods=["GET"])
@@ -224,14 +257,9 @@ def list_files(session_id: str):
 
 @app.route("/session/<session_id>", methods=["DELETE"])
 def delete_session(session_id: str):
-    extract_dir = EXTRACTED_FOLDER / session_id
-    manifest_path = EXTRACTED_FOLDER / f"{session_id}_manifest.json"
-    upload_path = UPLOAD_FOLDER / f"{session_id}.zip"
-
-    shutil.rmtree(extract_dir, ignore_errors=True)
-    manifest_path.unlink(missing_ok=True)
-    upload_path.unlink(missing_ok=True)
-
+    shutil.rmtree(EXTRACTED_FOLDER / session_id, ignore_errors=True)
+    (EXTRACTED_FOLDER / f"{session_id}_manifest.json").unlink(missing_ok=True)
+    (UPLOAD_FOLDER / f"{session_id}.zip").unlink(missing_ok=True)
     return jsonify({"message": "Session deleted"})
 
 
