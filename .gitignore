@@ -3,3 +3,11 @@
 # Example .gitignore files: https://github.com/github/gitignore
 /bower_components/
 /node_modules/
+
+# Lift search app
+lift-search/uploads/
+lift-search/extracted/
+lift-search/.env
+lift-search/__pycache__/
+*.pyc
+*.pyo
