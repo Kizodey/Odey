@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --color-racing-950: #061b12;
+  --color-racing-900: #0b2e1e;
+  --color-racing-800: #113a26;
+  --color-racing-700: #16482f;
+  --color-racing-600: #1e5c3c;
+  --color-racing-100: #e3ede6;
+  --color-racing-50: #f4f8f5;
+
+  --color-gold-600: #a97e1f;
+  --color-gold-500: #c9992f;
+  --color-gold-400: #d9af4c;
+  --color-gold-300: #e6c777;
+
+  --color-cream: #faf7ef;
+  --color-ink: #14201a;
+
+  --background: var(--color-cream);
+  --foreground: var(--color-ink);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-racing-950: var(--color-racing-950);
+  --color-racing-900: var(--color-racing-900);
+  --color-racing-800: var(--color-racing-800);
+  --color-racing-700: var(--color-racing-700);
+  --color-racing-600: var(--color-racing-600);
+  --color-racing-100: var(--color-racing-100);
+  --color-racing-50: var(--color-racing-50);
+  --color-gold-600: var(--color-gold-600);
+  --color-gold-500: var(--color-gold-500);
+  --color-gold-400: var(--color-gold-400);
+  --color-gold-300: var(--color-gold-300);
+  --color-cream: var(--color-cream);
+  --color-ink: var(--color-ink);
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.bg-noise {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.06) 1px, transparent 0);
+  background-size: 22px 22px;
+}
