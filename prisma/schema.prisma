@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Country {
+  UK
+  IRE
+}
+
+enum RaceType {
+  FLAT
+  JUMPS
+}
+
+enum TipResult {
+  PENDING
+  WON
+  PLACED
+  LOST
+}
+
+model Course {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  country  Country
+  region   String
+  meetings Meeting[]
+}
+
+model Meeting {
+  id       String   @id @default(cuid())
+  date     DateTime
+  course   Course   @relation(fields: [courseId], references: [id])
+  courseId String
+  going    String
+  raceType RaceType
+  races    Race[]
+
+  @@unique([courseId, date])
+  @@index([date])
+}
+
+model Race {
+  id          String   @id @default(cuid())
+  meeting     Meeting  @relation(fields: [meetingId], references: [id])
+  meetingId   String
+  name        String
+  raceTime    DateTime
+  distance    String
+  raceClass   String
+  prizeMoney  Int
+  runners     Runner[]
+  tips        Tip[]
+
+  @@index([meetingId])
+  @@index([raceTime])
+}
+
+model Runner {
+  id         String  @id @default(cuid())
+  race       Race    @relation(fields: [raceId], references: [id])
+  raceId     String
+  number     Int
+  horseName  String
+  jockey     String
+  trainer    String
+  age        Int
+  weight     String
+  odds       String
+  form       String
+  tips       Tip[]
+
+  @@index([raceId])
+}
+
+model Tipster {
+  id           String  @id @default(cuid())
+  name         String  @unique
+  slug         String  @unique
+  bio          String
+  specialty    String
+  winRate      Int
+  roi          Int
+  totalTips    Int
+  tips         Tip[]
+}
+
+model Tip {
+  id          String    @id @default(cuid())
+  race        Race      @relation(fields: [raceId], references: [id])
+  raceId      String
+  runner      Runner    @relation(fields: [runnerId], references: [id])
+  runnerId    String
+  tipster     Tipster   @relation(fields: [tipsterId], references: [id])
+  tipsterId   String
+  confidence  Int
+  analysis    String
+  result      TipResult @default(PENDING)
+  createdAt   DateTime  @default(now())
+
+  @@index([raceId])
+  @@index([tipsterId])
+}
