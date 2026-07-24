@@ -37,13 +37,22 @@ const config: ExpoConfig = {
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#6b46e5',
       foregroundImage: './assets/android-icon-foreground.png',
-      backgroundImage: './assets/android-icon-background.png',
       monochromeImage: './assets/android-icon-monochrome.png',
     },
     permissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION'],
   },
+  plugins: [
+    [
+      'expo-splash-screen',
+      {
+        image: './assets/splash-icon.png',
+        backgroundColor: '#6b46e5',
+        imageWidth: 220,
+      },
+    ],
+  ],
   extra: {
     googleApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? null,
     forceMockMode: process.env.EXPO_PUBLIC_FORCE_MOCK === '1',

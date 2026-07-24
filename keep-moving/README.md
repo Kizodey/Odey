@@ -33,6 +33,10 @@ app is a one-file edit.
    Phone and computer must be on the same Wi-Fi; if that's awkward, run
    `npx expo start --tunnel` instead.
 
+The app opens on the purple **Keep Moving** logo screen and fades to the map
+once it's ready. The logo artwork lives in `assets/` (`splash-icon.png`,
+`icon.png`, the Android adaptive icons) — swap those PNGs to rebrand.
+
 ### Demo script
 
 1. Tap the search bar and pick **Sea-Tac Airport** (any demo destination works).

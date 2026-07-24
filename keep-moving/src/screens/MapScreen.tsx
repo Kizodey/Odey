@@ -18,10 +18,15 @@ import { DEMO_ORIGIN } from '../services/routing/mockData';
 import { useNavStore } from '../state/navStore';
 import { theme } from '../theme';
 
+type Props = {
+  /** Fired once the map has rendered — used to dismiss the branded splash. */
+  onMapReady?(): void;
+};
+
 // The map uses the platform default tiles (Apple on iOS, Google on Android):
 // the Google tile provider needs a dev build and can't run inside Expo Go on
 // iOS. Routing and traffic data are independent of the tile layer.
-export function MapScreen() {
+export function MapScreen({ onMapReady }: Props) {
   const mapRef = useRef<MapView>(null);
   const phase = useNavStore((s) => s.phase);
   const destination = useNavStore((s) => s.destination);
@@ -90,6 +95,7 @@ export function MapScreen() {
           latitudeDelta: 0.2,
           longitudeDelta: 0.2,
         }}
+        onMapReady={onMapReady}
         showsUserLocation={config.mode === 'live'}
         showsMyLocationButton={false}
         toolbarEnabled={false}
