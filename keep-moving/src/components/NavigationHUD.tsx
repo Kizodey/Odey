@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { theme } from '../theme';
 import type { PositionFix, RouteProgress } from '../types';
 import { formatDistance, formatEtaClock, formatMinutes } from './format';
 
@@ -40,27 +41,23 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     bottom: 32,
-    backgroundColor: '#101418',
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
+    backgroundColor: theme.color.cardBg,
+    borderRadius: theme.radius.card,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
+    ...theme.shadow.card,
   },
   stat: { alignItems: 'center' },
-  big: { fontSize: 18, fontWeight: '800', color: '#ffffff' },
-  small: { fontSize: 11, color: '#9aa4ad', marginTop: 2 },
+  big: { fontSize: 18, fontWeight: '800', color: theme.color.text },
+  small: { fontSize: 11, color: theme.color.subtext, marginTop: 2 },
   endBtn: {
-    backgroundColor: '#c62828',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    backgroundColor: theme.color.danger,
+    borderRadius: theme.radius.pill,
+    paddingVertical: 11,
+    paddingHorizontal: 18,
   },
-  endText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  endText: { color: '#fff', fontWeight: '800', fontSize: 14 },
 });

@@ -1,16 +1,17 @@
 import React from 'react';
 import { Polyline } from 'react-native-maps';
+import { theme } from '../theme';
 import type { Route } from '../types';
 
 const CONGESTION_COLORS = {
-  FREE: '#2e7d32',
-  SLOW: '#f9a825',
-  JAM: '#c62828',
+  FREE: theme.route.FREE,
+  SLOW: theme.route.SLOW,
+  JAM: theme.route.JAM,
 } as const;
 
 type Props = {
   route: Route;
-  /** Dim gray rendering for non-active alternates. */
+  /** Dimmed rendering for non-active alternates. */
   dimmed?: boolean;
 };
 
@@ -19,8 +20,8 @@ export function RoutePolyline({ route, dimmed = false }: Props) {
     return (
       <Polyline
         coordinates={route.points}
-        strokeWidth={4}
-        strokeColor="rgba(120, 120, 120, 0.55)"
+        strokeWidth={theme.route.altWidth}
+        strokeColor={theme.route.alt}
         zIndex={1}
       />
     );
@@ -31,7 +32,7 @@ export function RoutePolyline({ route, dimmed = false }: Props) {
         <Polyline
           key={`${route.id}-${seg.startIndex}`}
           coordinates={route.points.slice(seg.startIndex, seg.endIndex + 1)}
-          strokeWidth={6}
+          strokeWidth={theme.route.width}
           strokeColor={CONGESTION_COLORS[seg.congestion]}
           zIndex={2}
         />

@@ -16,6 +16,7 @@ import { RoutePolyline } from '../components/RoutePolyline';
 import { RouteSummaryCard } from '../components/RouteSummaryCard';
 import { DEMO_ORIGIN } from '../services/routing/mockData';
 import { useNavStore } from '../state/navStore';
+import { theme } from '../theme';
 
 // The map uses the platform default tiles (Apple on iOS, Google on Android):
 // the Google tile provider needs a dev build and can't run inside Expo Go on
@@ -65,6 +66,20 @@ export function MapScreen() {
 
   const searchAnchor = fix?.position ?? DEMO_ORIGIN;
 
+  const recenter = () => {
+    if (navigating && fix) {
+      mapRef.current?.animateCamera(
+        { center: fix.position, heading: fix.heading, zoom: 15 },
+        { duration: 500 },
+      );
+    } else if (activeRoute) {
+      mapRef.current?.fitToCoordinates(activeRoute.points, {
+        edgePadding: { top: 140, bottom: 240, left: 60, right: 60 },
+        animated: true,
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <MapView
@@ -87,7 +102,7 @@ export function MapScreen() {
           <Marker
             coordinate={destination.location}
             title={destination.name}
-            pinColor="#c62828"
+            pinColor={theme.color.accent}
           />
         )}
         {config.mode === 'mock' && fix && (
@@ -97,12 +112,26 @@ export function MapScreen() {
             flat
             title="You (simulated)"
           >
-            <View style={styles.car} />
+            <View style={styles.carHalo}>
+              <View style={styles.car}>
+                <View style={styles.carFace}>
+                  <View style={styles.carEye} />
+                  <View style={styles.carEye} />
+                </View>
+                <View style={styles.carSmile} />
+              </View>
+            </View>
           </Marker>
         )}
       </MapView>
 
       {config.mode === 'mock' && <DemoModeBanner />}
+
+      {activeRoute && (
+        <TouchableOpacity style={styles.fab} onPress={recenter}>
+          <Text style={styles.fabIcon}>🎯</Text>
+        </TouchableOpacity>
+      )}
 
       {(phase === 'idle' || phase === 'routing' || phase === 'preview') && (
         <DestinationSearch near={searchAnchor} onSelect={setDestination} />
@@ -110,7 +139,7 @@ export function MapScreen() {
 
       {phase === 'routing' && (
         <View style={styles.loading}>
-          <ActivityIndicator size="large" color="#0a7d36" />
+          <ActivityIndicator size="large" color={theme.color.accent} />
           <Text style={styles.loadingText}>Finding routes…</Text>
         </View>
       )}
@@ -159,62 +188,94 @@ export function MapScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  carHalo: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(74,103,245,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   car: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: '#1565c0',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: theme.color.carBubble,
     borderWidth: 3,
     borderColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  carFace: { flexDirection: 'row', gap: 4, marginTop: 2 },
+  carEye: {
+    width: 3.5,
+    height: 3.5,
+    borderRadius: 2,
+    backgroundColor: '#ffffff',
+  },
+  carSmile: {
+    width: 9,
+    height: 4.5,
+    borderBottomWidth: 2,
+    borderColor: '#ffffff',
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+    marginTop: 1,
+  },
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 250,
+    width: 48,
+    height: 48,
+    borderRadius: theme.radius.fab,
+    backgroundColor: theme.color.cardBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 15,
+    ...theme.shadow.card,
+  },
+  fabIcon: { fontSize: 20 },
   loading: {
     position: 'absolute',
     bottom: 48,
     alignSelf: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    paddingHorizontal: 24,
-    paddingVertical: 18,
+    backgroundColor: theme.color.cardBg,
+    borderRadius: theme.radius.card,
+    paddingHorizontal: 26,
+    paddingVertical: 20,
     alignItems: 'center',
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    ...theme.shadow.card,
   },
-  loadingText: { marginTop: 8, fontSize: 14, color: '#555' },
+  loadingText: { marginTop: 8, fontSize: 14, color: theme.color.subtext },
   arrivedCard: {
     position: 'absolute',
     left: 16,
     right: 16,
     bottom: 32,
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
+    backgroundColor: theme.color.cardBg,
+    borderRadius: theme.radius.card,
     padding: 24,
     alignItems: 'center',
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
+    ...theme.shadow.card,
   },
-  arrivedTitle: { fontSize: 20, fontWeight: '800', color: '#1a1a1a' },
-  arrivedSub: { fontSize: 14, color: '#666', marginTop: 4 },
+  arrivedTitle: { fontSize: 20, fontWeight: '800', color: theme.color.text },
+  arrivedSub: { fontSize: 14, color: theme.color.subtext, marginTop: 4 },
   doneBtn: {
     marginTop: 16,
-    backgroundColor: '#0a7d36',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 40,
+    backgroundColor: theme.color.accent,
+    borderRadius: theme.radius.pill,
+    paddingVertical: 13,
+    paddingHorizontal: 44,
   },
-  doneText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  doneText: { color: '#fff', fontWeight: '800', fontSize: 16 },
   errorBar: {
     position: 'absolute',
     top: 110,
     left: 16,
     right: 16,
-    backgroundColor: '#c62828',
-    borderRadius: 10,
+    backgroundColor: theme.color.danger,
+    borderRadius: theme.radius.card,
     padding: 12,
   },
   errorText: { color: '#fff', fontSize: 13, textAlign: 'center' },

@@ -10,6 +10,7 @@
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
     "react-native": "0.86.0",
+    "react-native-carplay": "^2.4.1-beta.0",
     "react-native-maps": "^1.27.2",
     "zustand": "^5.0.14"
   },

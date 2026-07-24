@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { config } from '../config';
 import { getPlacesService } from '../services/places/PlacesService';
+import { theme } from '../theme';
 import type { LatLng, Place } from '../types';
 
 type Props = {
@@ -45,7 +46,8 @@ export function DestinationSearch({ near, onSelect }: Props) {
         placeholder={
           config.mode === 'mock' ? 'Search demo destinations…' : 'Where to?'
         }
-        placeholderTextColor="#8a8a8a"
+        placeholderTextColor={theme.color.subtext}
+        selectionColor={theme.color.accent}
         value={query}
         onChangeText={setQuery}
         onFocus={() => setFocused(true)}
@@ -89,35 +91,29 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   input: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: theme.color.cardBg,
+    borderRadius: theme.radius.pill,
+    paddingHorizontal: 20,
+    paddingVertical: 13,
     fontSize: 16,
-    color: '#1a1a1a',
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
+    fontWeight: '600',
+    color: theme.color.text,
+    ...theme.shadow.card,
   },
   list: {
-    marginTop: 6,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
+    marginTop: 8,
+    backgroundColor: theme.color.cardBg,
+    borderRadius: theme.radius.card,
     maxHeight: 280,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    overflow: 'hidden',
+    ...theme.shadow.card,
   },
   row: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e5e5e5',
+    borderBottomColor: '#e8eaf5',
   },
-  name: { fontSize: 15, fontWeight: '600', color: '#1a1a1a' },
-  address: { fontSize: 13, color: '#777', marginTop: 2 },
+  name: { fontSize: 15, fontWeight: '700', color: theme.color.text },
+  address: { fontSize: 13, color: theme.color.subtext, marginTop: 2 },
 });

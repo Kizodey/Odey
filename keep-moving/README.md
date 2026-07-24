@@ -13,6 +13,11 @@ the Google Maps Platform **Routes API** (whose live traffic data is partly fed
 by Waze). Without an API key the app runs in a fully scripted **demo mode**,
 so you can see the whole experience before setting anything up.
 
+The UI uses the **WAVE** design language (Waze-inspired): chunky rounded
+cards, pill buttons, a purple/blue palette and a friendly car bubble. All
+visual tokens live in [`src/theme.ts`](src/theme.ts) — recolouring the whole
+app is a one-file edit.
+
 ## Run it in 2 minutes (demo mode, no API key)
 
 1. Install [Node.js](https://nodejs.org) 20 or newer on your computer.
@@ -63,6 +68,47 @@ simulated data.
 With a key present the app uses your real GPS position, real destination
 search, and live Google traffic. Quota maths: while navigating, the app
 re-checks routes every 45 s ≈ 80 Routes API calls per driving hour.
+
+## Apple CarPlay
+
+The CarPlay integration is **code-complete and wired in**, but CarPlay has
+hard platform requirements that no app can skip:
+
+**Already done in this repo:**
+- `react-native-carplay` installed; the whole integration is behind a runtime
+  guard (`src/services/carplay/`), so Expo Go and Android behave exactly as
+  before — zero risk to the phone demo.
+- On connect, the car display gets a live map (`CarPlayMapScreen`) showing the
+  traffic-coloured route and remaining time/distance.
+- The signature moment works in the car: when a **Keep moving?** offer fires,
+  the car shows a native CarPlay alert with **Switch** / **Stay** buttons that
+  drive the same state machine as the phone — answer on either screen and both
+  stay in sync. Arrival shows a car-side alert too.
+- `app.config.ts` declares the CarPlay entitlement + scene manifest, and
+  `carplay-native/` contains the ready-made `CarSceneDelegate` files the
+  native build needs.
+
+**What only you can do (Apple's rules):**
+1. Join the [Apple Developer Program](https://developer.apple.com/programs/) ($99/yr).
+2. Request the **CarPlay navigation entitlement** at
+   [developer.apple.com/contact/carplay](https://developer.apple.com/contact/carplay)
+   (category: navigation). Apple reviews and grants this per-app; it can take
+   a few weeks.
+3. Once granted, on a Mac: `npx expo prebuild -p ios`, open the Xcode project,
+   add the two files from `carplay-native/` to the app target, and build to
+   your iPhone. (Or use EAS Build with a small config plugin — happy to add
+   one when you get there.)
+4. Test without a car via Xcode's CarPlay Simulator: run the app, then
+   **I/O → External Displays → CarPlay** in the iOS Simulator.
+
+**Honest caveats:** CarPlay never runs inside Expo Go, so nothing CarPlay
+related activates in the 2-minute demo — by design. `react-native-carplay`
+is at 2.4.1-beta (the version adding new-architecture support that Expo
+SDK 57 uses); if the iOS build hits issues, setting `newArchEnabled: false`
+in app config is the documented fallback. The native scene-delegate step (3)
+follows the library's official iOS setup and may need minor adjustment to
+match your Xcode version — it's the one part I could not compile-verify in
+this environment.
 
 ## Platform notes
 

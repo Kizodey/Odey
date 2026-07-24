@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { theme } from '../theme';
 
 export function DemoModeBanner() {
   return (
@@ -14,14 +15,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 16,
     alignSelf: 'center',
-    backgroundColor: 'rgba(16, 20, 24, 0.85)',
-    borderRadius: 999,
+    backgroundColor: theme.color.accent,
+    borderRadius: theme.radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 6,
     zIndex: 20,
   },
   text: {
-    color: '#ffd54f',
+    color: '#ffffff',
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 0.5,
